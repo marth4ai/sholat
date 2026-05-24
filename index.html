@@ -1,36 +1,443 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waktu Sholat Mesjid Attaqwa Alamanda</title>
+    <title>Full Page Image Slider with Clock, Date & Zoom Effect</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
     <style>
-        /* Menghilangkan semua space bawaan browser */
-        body, html {
+        /* Google Fonts untuk Tema Islami Modern & Elegan */
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+        /* Reset dasar agar halaman benar-benar penuh tanpa scrollbar bawaan */
+        html, body {
+            position: relative;
+            height: 100%;
             margin: 0;
             padding: 0;
-            height: 100%;
-            width: 100%;
-            overflow: hidden; /* Mencegah double scrollbar */
+            overflow: hidden;
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: #000;
         }
 
-        /* Membuat iframe mengisi seluruh layar */
-        iframe {
+        /* Mengatur ukuran container slider agar memenuhi layar */
+        .swiper {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .swiper.loaded {
+            opacity: 1;
+        }
+
+        /* Mengatur setiap slide */
+        .swiper-slide {
+            position: relative;
+            text-align: center;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Penting agar gambar yang membesar tidak keluar dari frame */
+        }
+
+        /* Gradient Overlay Gelap di bagian bawah gambar untuk menjamin keterbacaan teks */
+        .swiper-slide::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0,0,0,0) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* --- EFEK ANIMASI ZOOM IN / SCALE UP --- */
+        .swiper-slide img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Transisi default saat slide tidak aktif atau saat kembali normal */
+            transform: scale(1);
+            transition: transform 6s ease-out; 
+            z-index: 1;
+        }
+
+        /* Ketika slide menjadi aktif, gambar akan membesar perlahan */
+        .swiper-slide-active img {
+            transform: scale(1.15); /* Membesar sebesar 15% */
+        }
+
+        /* --- KUSTOMISASI TEKS DI ATAS GAMBAR (TEMA ISLAMI & KETERBACAAN TINGGI) --- */
+        .slide-content {
+            position: absolute;
+            color: #fff;
+            z-index: 10;
+            /* Animasi tambahan agar teks muncul lembut saat slide aktif */
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.2s cubic-bezier(0.25, 1, 0.5, 1) 0.5s;
+            max-width: 80%;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .swiper-slide-active .slide-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Title: Gaya Serif Islami Elegan (Amiri) warna Cream Lembut dengan Outline Gelap Tebal */
+        .slide-content h1 {
+            margin: 0 0 15px;
+            font-family: 'Amiri', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #fceecb; /* Cream emas islami */
+            letter-spacing: 1px;
+            line-height: 1.3;
+            /* List / Outline gelap tebal berlapis agar sangat kontras di gambar terang/gelap */
+            text-shadow: 
+                -2.5px -2.5px 0 #1b3022,  /* Deep Forest Green / Charcoal */
+                 2.5px -2.5px 0 #1b3022,
+                -2.5px  2.5px 0 #1b3022,
+                 2.5px  2.5px 0 #1b3022,
+                -2.5px  0px   0 #1b3022,
+                 2.5px  0px   0 #1b3022,
+                 0px   -2.5px 0 #1b3022,
+                 0px    2.5px 0 #1b3022,
+                 0px    4px  10px rgba(0, 0, 0, 0.95), /* Bayangan luar */
+                 0px    8px  25px rgba(0, 0, 0, 0.9);
+        }
+
+        /* Description: Teks Sans-Serif Modern (Montserrat) warna putih bersih dengan outline gelap */
+        .slide-content p {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+            max-width: 750px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+            /* List / Outline gelap tajam */
+            text-shadow: 
+                -1.5px -1.5px 0 #1b3022,
+                 1.5px -1.5px 0 #1b3022,
+                -1.5px  1.5px 0 #1b3022,
+                 1.5px  1.5px 0 #1b3022,
+                -1.5px  0px   0 #1b3022,
+                 1.5px  0px   0 #1b3022,
+                 0px   -1.5px 0 #1b3022,
+                 0px    1.5px 0 #1b3022,
+                 0px    3px   8px rgba(0, 0, 0, 0.95),
+                 0px    6px  15px rgba(0, 0, 0, 0.85);
+        }
+
+        /* Responsivitas Teks untuk layar HP */
+        @media (max-width: 768px) {
+            .slide-content h1 {
+                font-size: 2.2rem;
+            }
+            .slide-content p {
+                font-size: 1rem;
+                max-width: 90%;
+            }
+        }
+
+        /* Mengubah warna tombol navigasi menjadi putih agar kontras */
+        .swiper-button-next,
+        .swiper-button-prev {
+            color: #fff !important;
+        }
+
+        .swiper-pagination-bullet-active {
+            background: #fff !important;
+        }
+
+        /* --- STYLE WIDGET JAM & TANGGAL --- */
+        .clock-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.55);
+            color: #ffffff;
+            padding: 12px 24px;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            backdrop-filter: blur(5px);
+            z-index: 999; /* Tetap berada di paling depan */
+            border: 1px solid rgba(252, 238, 203, 0.15); /* Border emas tipis transparan */
+        }
+
+        .time-display {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            line-height: 1.2;
+            font-family: 'Montserrat', sans-serif;
+            color: #fceecb; /* Cream emas islami */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .date-display {
+            font-size: 1rem;
+            margin-top: 4px;
+            letter-spacing: 1px;
+            opacity: 0.85;
+            font-family: 'Montserrat', sans-serif;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* --- LOADING SPINNER & ERROR STATE --- */
+        .loader-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            border: none;
+            background: #111;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: #fff;
+            transition: opacity 0.5s ease-out, visibility 0.5s;
+        }
+
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            border-top-color: #fceecb;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        .loader-text {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            padding: 20px;
+            max-width: 400px;
+            display: none;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
 
-    <iframe 
-       src="https://script.google.com/macros/s/AKfycbxm9_Z9ohorKI_r7D44tsnJq-letb7veUi5RHlLgu2BoUIn_DXwopdzj-c349UDaDE6/exec" 
-        allowfullscreen>
-    </iframe>
+    <!-- Loading Screen -->
+    <div id="loader" class="loader-container">
+        <div class="loader-spinner" id="spinner"></div>
+        <div class="loader-text" id="loader-text">Memuat Galeri...</div>
+        <div class="error-message" id="error-msg">
+            <h3>Gagal Memuat Galeri</h3>
+            <p>Pastikan koneksi internet aktif, atau konfigurasi data (Google Sheets / gallery.json) sudah benar.</p>
+        </div>
+    </div>
 
+    <!-- Clock Widget -->
+    <div class="clock-container">
+        <div id="clock" class="time-display">00:00:00</div>
+        <div id="date" class="date-display">00/00/0000</div>
+    </div>
+
+    <!-- Swiper Slider -->
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper" id="swiper-wrapper">
+            <!-- Slides will be loaded dynamically here -->
+        </div>
+        
+        <div class="swiper-pagination"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <script>
+        // ==================== KONFIGURASI ====================
+        // ID Google Sheet yang Anda berikan
+        const GOOGLE_SHEET_ID = "1PjAPH7mU8EbAIJnGP16yG45D90rtd9Q99NlnfAli-XM"; 
+        // Nama tab spreadsheet utama
+        const GOOGLE_SHEET_TAB_NAME = "utama"; 
+        // ====================================================
+
+        // 1. Fungsi Logika Jam & Tanggal
+        function updateDateTime() {
+            const now = new Date();
+            
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            let seconds = now.getSeconds();
+
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+
+            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+
+            let day = now.getDate();
+            let month = now.getMonth() + 1;
+            const year = now.getFullYear();
+
+            day = day < 10 ? '0' + day : day;
+            month = month < 10 ? '0' + month : month;
+
+            document.getElementById('date').textContent = `${day}/${month}/${year}`;
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        // 2. Fetch Data secara Dinamis dari Google Sheets atau Fallback gallery.json
+        async function loadGallery() {
+            const wrapper = document.getElementById('swiper-wrapper');
+            const loader = document.getElementById('loader');
+            const spinner = document.getElementById('spinner');
+            const loaderText = document.getElementById('loader-text');
+            const errorMsg = document.getElementById('error-msg');
+            const swiperEl = document.querySelector('.swiper');
+
+            let imagesData = [];
+
+            try {
+                // Jika ID Google Sheets diisi, prioritaskan memuat dari Google Sheets
+                if (GOOGLE_SHEET_ID && GOOGLE_SHEET_ID.trim() !== "") {
+                    loaderText.textContent = "Memuat dari Google Sheets...";
+                    
+                    let sheetUrl = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID.trim()}/gviz/tq?tqx=out:json`;
+                    if (GOOGLE_SHEET_TAB_NAME && GOOGLE_SHEET_TAB_NAME.trim() !== "") {
+                        sheetUrl += `&sheet=${encodeURIComponent(GOOGLE_SHEET_TAB_NAME.trim())}`;
+                    }
+
+                    const response = await fetch(sheetUrl);
+                    if (!response.ok) throw new Error('Gagal mengambil data dari Google Sheets API');
+                    
+                    const text = await response.text();
+                    
+                    // Ekstrak JSON dari response Google Visualization API
+                    const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+                    const parsedData = JSON.parse(jsonString);
+                    
+                    if (parsedData.table && parsedData.table.rows) {
+                        let rows = parsedData.table.rows;
+                        
+                        // Deteksi dan lewati baris header jika baris pertama bukan berisi tautan URL gambar
+                        if (rows.length > 0) {
+                            const firstRowCol1 = rows[0].c && rows[0].c[0] ? String(rows[0].c[0].v).toLowerCase() : '';
+                            if (firstRowCol1.includes('url') || !firstRowCol1.startsWith('http') && !firstRowCol1.startsWith('images/')) {
+                                rows = rows.slice(1); // Potong baris pertama (header)
+                            }
+                        }
+
+                        // Petakan data baris spreadsheet ke objek JavaScript
+                        imagesData = rows.map(row => {
+                            return {
+                                url: row.c && row.c[0] ? String(row.c[0].v).trim() : '',
+                                title: row.c && row.c[1] ? String(row.c[1].v).trim() : '',
+                                desc: row.c && row.c[2] ? String(row.c[2].v).trim() : ''
+                            };
+                        }).filter(item => item.url !== ''); // Buang baris kosong yang tidak punya URL
+                    }
+                }
+            } catch (sheetError) {
+                console.warn('Gagal memuat dari Google Sheets, menggunakan fallback gallery.json:', sheetError);
+            }
+
+            // Jika Google Sheets kosong/gagal, gunakan file "gallery.json" lokal sebagai cadangan (fallback)
+            if (imagesData.length === 0) {
+                try {
+                    loaderText.textContent = "Memuat dari gallery.json (cadangan)...";
+                    const response = await fetch('gallery.json');
+                    if (!response.ok) throw new Error('Gagal memuat gallery.json');
+                    imagesData = await response.json();
+                } catch (fallbackError) {
+                    console.error('Semua metode pemuatan data gagal:', fallbackError);
+                    spinner.style.display = 'none';
+                    loaderText.style.display = 'none';
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+            }
+
+            // Validasi data akhir
+            if (!Array.isArray(imagesData) || imagesData.length === 0) {
+                spinner.style.display = 'none';
+                loaderText.style.display = 'none';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Bangun elemen slide secara dinamis
+            let slidesHtml = '';
+            imagesData.forEach(item => {
+                slidesHtml += `
+                    <div class="swiper-slide">
+                        <img src="${item.url}" alt="${item.title}">
+                        <div class="slide-content">
+                            <h1>${item.title}</h1>
+                            <p>${item.desc}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Masukkan ke dalam DOM
+            wrapper.innerHTML = slidesHtml;
+
+            // Hilangkan loading screen dengan transisi halus
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.visibility = 'hidden';
+                swiperEl.classList.add('loaded');
+            }, 500);
+
+            // 3. Inisialisasi Swiper Slider setelah DOM terisi lengkap
+            const swiper = new Swiper('.mySwiper', {
+                effect: 'fade',
+                fadeEffect: {
+                    crossFade: true
+                },
+                loop: true, 
+                autoplay: {
+                    delay: 6000, 
+                    disableOnInteraction: false, 
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true, 
+                    dynamicBullets: false
+                }
+            });
+        }
+
+        // Jalankan pemuatan saat dokumen siap
+        document.addEventListener('DOMContentLoaded', loadGallery);
+    </script>
 </body>
 </html>
